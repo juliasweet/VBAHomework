@@ -1,0 +1,152 @@
+Sub JuliaSweetVBAHomework()
+
+'Set variables for easy
+Dim Ticker As String
+Dim TotalVolume As Double
+Dim LastRow As Long
+    'Find last row
+    LastRow = Cells(Rows.Count, 1).End(xlUp).Row
+Dim SummaryRow As Integer
+    'Start inputting results on row 2
+    SummaryRow = 2
+
+
+''Set new variables for medium level
+Dim OpenRow As Long
+    'The first value for open row is 2
+    OpenRow = 2
+Dim CloseRow As Long
+Dim StartPrice As Double
+Dim ClosePrice As Double
+Dim YearlyChange As Double
+Dim PercentageChange As Double
+
+
+
+
+'Prepare Summary Chart by filling in headers
+Range("I1").Value = "Ticker"
+Range("J1").Value = "Yearly Change"
+Range("K1").Value = "Percent Change"
+Range("L1").Value = "Total Volume"
+
+'Set i loop to go through all rows
+For i = 2 To LastRow
+
+'Check to see if there is a new ticker symbol in A column
+If Cells(i + 1, 1).Value <> Cells(i, 1).Value Then
+    'If it has changed,
+    'Establish Ticker
+    Ticker = Cells(i, 1).Value
+    'Add to Total Volume
+    TotalVolume = TotalVolume + Cells(i, 7).Value
+    'Determine OpenPrice
+    StartPrice = Cells(OpenRow, 3)
+    'Determine ClosePrice
+    ClosePrice = Cells(i, 6)
+    'Add Ticker and Total Volume to Summary Table
+    Cells(SummaryRow, 9).Value = Ticker
+    Cells(SummaryRow, 12).Value = TotalVolume
+        'Determine Yearly Change
+        If StartPrice = 0 Then
+        ClosePrice = 0
+        Else
+        YearlyChange = ClosePrice - StartPrice
+        End If
+
+        'Determine Percent Change
+        If StartPrice = 0 Then
+        PercentChange = 0
+        Else
+        PercentChange = YearlyChange / StartPrice
+        End If
+
+    'Add to Summary Table
+    Cells(SummaryRow, 10).Value = YearlyChange
+    Cells(SummaryRow, 11).Value = PercentChange
+    Cells(SummaryRow, 11).NumberFormat = "0.00%"
+
+    'Format these cells accordingly
+    If Cells(SummaryRow, 10).Value > 0 Then
+    Cells(SummaryRow, 10).Interior.ColorIndex = 4
+    ElseIf Cells(SummaryRow, 10).Value < 0 Then
+    Cells(SummaryRow, 10).Interior.ColorIndex = 3
+    Else
+    Cells(SummaryRow, 10).Interior.ColorIndex = 2
+    End If
+
+
+    'Add another row to the Summary Table
+    SummaryRow = SummaryRow + 1
+    'Reset Total Volume for next Ticker
+    TotalVolume = 0
+    'Adjust OpenRow
+    OpenRow = i + 1
+    
+'But if Ticker is the Same
+Else: TotalVolume = TotalVolume + Cells(i, 7).Value
+
+End If
+
+Next i
+
+'Adjust width of summary table
+Columns("I:L").AutoFit
+
+'Find Greatest Increase, Greatest Decrease, Highest Volume for difficult
+
+'Set variables for review of summary table
+Dim GreatestIncrease As Double
+Dim GreatestDecrease As Double
+Dim GreatestTotal As Double
+Dim SummaryTicker As String
+Dim LastRowSummary As Integer
+LastSummaryRow = Cells(Rows.Count, 9).End(xlUp).Row
+
+'Place headings for Summary Table
+Cells(2, 14).Value = "Greatest % Increase"
+Cells(3, 14).Value = "Greatest % Decrease"
+Cells(4, 14).Value = "Greatest Total Volume"
+Cells(1, 15).Value = "Ticker"
+Cells(1, 16).Value = "Value"
+
+
+For i = 2 To LastSummaryRow
+
+'Find Greatest increase
+GreatestIncrease = WorksheetFunction.Max(Range("K:K"))
+If Cells(i, 11).Value = GreatestIncrease Then
+SummaryTicker = Cells(i, 9).Value
+Range("P2").Value = GreatestIncrease
+Range("P2").NumberFormat = "0.00%"
+Range("O2").Value = SummaryTicker
+End If
+
+
+'Find Greatest decrease
+GreatestDecrease = WorksheetFunction.Min(Range("K:K"))
+Range("P3").Value = GreatestDecrease
+Range("P3").NumberFormat = "0.00%"
+If Cells(i, 11).Value = GreatestDecrease Then
+SummaryTicker = Cells(i, 9).Value
+Range("O3").Value = SummaryTicker
+End If
+
+'Find Greatest Total Volume
+GreatestTotal = WorksheetFunction.Max(Range("L:L"))
+If Cells(i, 12).Value = GreatestTotal Then
+SummaryTicker = Cells(i, 9).Value
+Range("P4") = GreatestTotal
+Range("O4").Value = SummaryTicker
+End If
+
+
+'Format width of Summary Table cells
+Columns("N:P").AutoFit
+
+Next i
+
+
+
+End Sub
+
